@@ -53,11 +53,11 @@
 
 		var paperbuzzviz = undefined;
 		// var doi = '10.1080/23800127.2017.1283122';
-		var doi = '10.15252/embj.201695429';
+		// var doi = '10.15252/embj.201695429';
 		// var doi = '10.1016/j.quaint.2011.07.044';
 		// var doi = '10.4236/sn.2017.62007';
 		// var doi = '10.2190/EC.43.3.f'
-		// var doi = '10.1038/nature.2017.22163';
+		var doi = '10.1038/nature.2017.22163';
 		d3.json('https://api.paperbuzz.org/v0/doi/' + doi, function(data) {
 				options.paperbuzzStatsJson = data
 				paperbuzzviz = new PaperbuzzViz(options);
