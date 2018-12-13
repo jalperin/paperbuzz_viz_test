@@ -111,14 +111,16 @@ function PaperbuzzViz(options) {
 
         var total = 0;
         sources.forEach(function(source) {
-            miniDiv.append('div')
-                .attr('class', 'paperbuzz-mini-source')
-                .append('i')
-                .attr('class', 'icon-' + source.source_id)
-                .append('span')
-                .attr('class', 'paperbuzz-mini-count')
-                .text(source.events_count);
-            total += source.events_count
+            if (source.events_count > 0) {
+                miniDiv.append('div')
+                    .attr('class', 'paperbuzz-mini-source')
+                    .append('i')
+                    .attr('class', 'icon-' + source.source_id)
+                    .append('span')
+                    .attr('class', 'paperbuzz-mini-count')
+                    .text(source.events_count);
+                total += source.events_count;
+            }
         });
 
         miniDiv.selectAll('.paperbuzz-mini-total')
@@ -139,11 +141,11 @@ function PaperbuzzViz(options) {
         sourceRow = canvas.append("div")
             .attr("class", "paperbuzz-source-row")
             .attr("style", "width: 100%; overflow: hidden;")
-            .attr("id", "source-" + source.source_id);
+            .attr("id", "paperbuzz-source-" + source.source_id);
 
         sourceTitle = sourceRow.append("h2")
             .attr("class", "paperbuzz-source-row-heading")
-            .attr("id", "month-" + source)
+            .attr("id", "paperbuzz-month-" + source.source_id)
             .text(source.source_id);
 
         addSource(source, sourceRow)
