@@ -81,18 +81,23 @@ function PaperbuzzViz(options) {
                 .text(data.metadata.title);
         }
 
-        vizDiv.append("br");
+        if (showMini) {
+            vizDiv.attr("style", "width: 200px;")
+        }
         
         if (sources.length > 0) {
-            if (showMini || !hasSVG_) {
-                addMiniViz(vizDiv, sources);
-            } else {
+            // TEMPORARY: 
+            // Disabling miniViz for now, opting for just hiding graphs
+            // until miniViz is finalized
+            // if (showMini || !hasSVG_) {
+            //     addMiniViz(vizDiv, sources);
+            // } else {
                 // loop through sources
                 sources.forEach(function(source) {
                     // metricsFound_ = true;
                     addSourceRow(vizDiv, source);
                 });
-            }
+            // }
            metricsFound_ = true;
         } else {
             vizDiv.append("p")
@@ -135,18 +140,12 @@ function PaperbuzzViz(options) {
      * @return {JQueryObject|boolean}
      */
     var addSourceRow = function(canvas, source) {
-        var sourceRow, sourceTitle;
+        var sourceRow, sourceHeading, sourceTitle;
 
         // Build category html objects.
         sourceRow = canvas.append("div")
-            .attr("class", "paperbuzz-source-row")
-            .attr("style", "width: 100%; overflow: hidden;")
+            .attr("class", "paperbuzz-source-row" + (showMini ? " paperbuzz-compact" : ""))
             .attr("id", "paperbuzz-source-" + source.source_id);
-
-        sourceTitle = sourceRow.append("h2")
-            .attr("class", "paperbuzz-source-row-heading")
-            .attr("id", "paperbuzz-month-" + source.source_id)
-            .text(source.source_id);
 
         addSource(source, sourceRow)
 
@@ -161,33 +160,25 @@ function PaperbuzzViz(options) {
      * @param {JQueryObject} $sourceRow
      * @return {JQueryObject}
      */
-    var addSource = function(source, $sourceRow) {
-        var $row, $countLabel, $count,
+    var addSource = function(source, $row) {
+        var $heading, $countLabel, $count,
             total = source.events_count;
 
-        $row = $sourceRow
+        $heading = $row.append("div")
+            .attr("class", "paperbuzz-source-heading")
+            .append("span")
+                .attr("class", "paperbuzz-source-name")
+                .attr("id", "paperbuzz-source-" + source.source_id)
+                .text(source.source.display_name)
             .append("div")
-            .attr("class", "paperbuzz-row")
-            .attr("style", "float: left")
-            .attr("id", "paperbuzz-row-" + source.source_id);
+                .attr("class", "paperbuzz-count-label")
+                .attr("id", "paperbuzz-count-" + source.source_id)
+                .html('<i class="icon-' + source.source_id + '" aria-hidden="true"></i>' + ' ' + formatNumber_(source.events_count));
 
-        $countLabel = $row.append("div")
-            .attr("class", "paperbuzz-count-label");
-       
-        $count = $countLabel.append("span");
-
-        $count
-            .attr("class", "paperbuzz-count")
-            .attr("id", "paperbuzz-count-" + source.source_id)
-            .html('<i class="icon-' + source.source_id + '"></i>' + ' ' + formatNumber_(total));
-           
-
-        $countLabel.append("br");
-        $countLabel.append("span")
-            .text(source.display_name);
 
         // Only add a chart if the browser supports SVG
-        if (hasSVG_) {
+        // TEMPORARY: also use to hide miniViz
+        if (hasSVG_ && !showMini) {
             var level = false;
 
             // check what levels we can show
@@ -245,7 +236,7 @@ function PaperbuzzViz(options) {
             // check there is data for
             if (showDaily || showMonthly || showYearly) {
                 var $chartDiv = $row.append("div")
-                    .attr("style", "width: 70%; float:left;")
+                    // .attr("style", "width: 70%; float:left;")
                     .attr("class", "paperbuzz-chart-area");
 
                 var viz = getViz($chartDiv, source);
@@ -257,13 +248,13 @@ function PaperbuzzViz(options) {
                 };
 
                 var $levelControlsDiv = $chartDiv.append("div")
-                    .attr("style", "width: " + (viz.margin.left + viz.width) + "px;")
-                    .append("div")
-                    .attr("style", "float:right;");
+                    .attr("class", "paperbuzz-controls")
+                    // .attr("style", "width: " + (viz.margin.left + viz.width) + "px;")
+                    // .append("div")
+                    // .attr("style", "float:right;");
 
                 if (showDaily) {
-                    $levelControlsDiv.append("a")
-                        .attr("href", "javascript:void(0)")
+                    $levelControlsDiv.append("button")
                         .classed("paperbuzz-control", true)
                         // .classed("disabled", !showDaily)
                         .classed("active", (level == 'day'))
@@ -280,8 +271,8 @@ function PaperbuzzViz(options) {
                 }
 
                 if (showMonthly) {
-                    $levelControlsDiv.append("a")
-                        .attr("href", "javascript:void(0)")
+                    $levelControlsDiv.append("button")
+                        // .attr("href", "javascript:void(0)")
                         .classed("paperbuzz-control", true)
                         // .classed("disabled", !showMonthly || !showYearly)
                         .classed("active", (level == 'month'))
@@ -299,8 +290,8 @@ function PaperbuzzViz(options) {
                 }
 
                 if (showYearly) {
-                    $levelControlsDiv.append("a")
-                        .attr("href", "javascript:void(0)")
+                    $levelControlsDiv.append("button")
+                        // .attr("href", "javascript:void(0)")
                         .classed("paperbuzz-control", true)
                         // .classed("disabled", !showYearly || !showMonthly)
                         .classed("active", (level == 'year'))
@@ -313,11 +304,6 @@ function PaperbuzzViz(options) {
                         }
                     );
                 }
-
-                // add a clearer and styles to ensure graphs on their own line
-                $row.insert("div", ":first-child")
-                    .attr('style', 'clear:both');
-                $row.attr('style', "width: 100%");
             };
         };
 
